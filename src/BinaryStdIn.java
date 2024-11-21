@@ -69,6 +69,7 @@ public final class BinaryStdIn {
     /**
      * Close this input stream and release any associated system resources.
      */
+
     public static void close() {
         if (!isInitialized) initialize();
         try {

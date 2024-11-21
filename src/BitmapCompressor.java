@@ -16,6 +16,8 @@
  *  1240 bits
  ******************************************************************************/
 
+//import jdk.incubator.vector.VectorOperators;
+import java.util.ArrayList;
 /**
  *  The {@code BitmapCompressor} class provides static methods for compressing
  *  and expanding a binary bitmap input.
@@ -33,8 +35,36 @@ public class BitmapCompressor {
      */
     public static void compress() {
 
-        // TODO: complete compress()
-
+        ArrayList<Integer> lengths = new ArrayList<Integer>();
+        boolean startBit = BinaryStdIn.readBoolean();
+        boolean current = startBit;
+        int count = 1;
+        int size = 0;
+        while(!BinaryStdIn.isEmpty()){
+            boolean nextBit = BinaryStdIn.readBoolean();
+            if(nextBit == current){
+                count++;
+                current = nextBit;
+            }
+            else{
+                lengths.add(count);
+                count = 0;
+                current = nextBit;
+            }
+            size++;
+        }
+        int max = findMax(lengths);
+        int numberOfBits = log2(max) + 1;
+        BinaryStdOut.write(size);
+        BinaryStdOut.write(numberOfBits);
+        BinaryStdOut.write(castBoolean(startBit), 1);
+        current = startBit;
+        for(int length : lengths){
+            for(int i = 0; i < length; i++){
+                BinaryStdOut.write(length, numberOfBits);
+            }
+            current = !startBit;
+        }
         BinaryStdOut.close();
     }
 
@@ -44,11 +74,40 @@ public class BitmapCompressor {
      */
     public static void expand() {
 
-        // TODO: complete expand()
+        int size = BinaryStdIn.readInt();
+        int sequenceLength = BinaryStdIn.readInt();
+        boolean current = BinaryStdIn.readBoolean();
+
+        for(int i = 0; i < size/sequenceLength; i++){
+            int nextLength = BinaryStdIn.readInt(sequenceLength);
+            for(int j = 0; j < nextLength; j++){
+                BinaryStdOut.write(castBoolean(current), 1);
+            }
+            current = !current;
+        }
 
         BinaryStdOut.close();
     }
 
+    public static int castBoolean(boolean bool) {
+        return (bool) ? 1 : 0;
+    }
+
+    public static int log2(int N)
+    {
+        return (int)(Math.log(N) / Math.log(2));
+
+    }
+
+    public static int findMax(ArrayList<Integer> nums){
+        int max = nums.get(0);
+        for(int i = 1; i < nums.size(); i++){
+            if(nums.get(i) > max){
+                max = nums.get(i);
+            }
+        }
+        return max;
+    }
     /**
      * When executed at the command-line, run {@code compress()} if the command-line
      * argument is "-" and {@code expand()} if it is "+".
