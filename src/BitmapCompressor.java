@@ -39,7 +39,6 @@ public class BitmapCompressor {
         boolean startBit = BinaryStdIn.readBoolean();
         boolean current = startBit;
         int count = 1;
-        int size = 0;
         while(!BinaryStdIn.isEmpty()){
             boolean nextBit = BinaryStdIn.readBoolean();
             if(nextBit == current){
@@ -47,24 +46,56 @@ public class BitmapCompressor {
                 current = nextBit;
             }
             else{
-                lengths.add(count);
+                lengths.add(count + 1);
                 count = 0;
                 current = nextBit;
             }
-            size++;
         }
-        int max = findMax(lengths);
-        int numberOfBits = log2(max) + 1;
-        BinaryStdOut.write(size);
-        BinaryStdOut.write(numberOfBits);
-        BinaryStdOut.write(castBoolean(startBit), 1);
-        current = startBit;
+        lengths.add(count);
+
+        if(startBit == true){
+            BinaryStdOut.write(0,8);
+        }
         for(int length : lengths){
-            for(int i = 0; i < length; i++){
-                BinaryStdOut.write(length, numberOfBits);
+            while(length > 255){
+                BinaryStdOut.write(255, 8);
+                length -= 255;
+                BinaryStdOut.write(0,8);
             }
-            current = !startBit;
+            BinaryStdOut.write(length, 8);
         }
+
+//        ArrayList<Integer> lengths = new ArrayList<Integer>();
+//        boolean startBit = BinaryStdIn.readBoolean();
+//        boolean current = startBit;
+//        int count = 1;
+//        int size = 0;
+//        while(!BinaryStdIn.isEmpty()){
+//            boolean nextBit = BinaryStdIn.readBoolean();
+//            if(nextBit == current){
+//                count++;
+//                current = nextBit;
+//            }
+//            else{
+//                lengths.add(count);
+//                count = 0;
+//                current = nextBit;
+//            }
+//            size++;
+//        }
+//        int max = findMax(lengths);
+//        int numberOfBits = log2(max) + 1;
+//        BinaryStdOut.write(size);
+//        BinaryStdOut.write(numberOfBits);
+//        BinaryStdOut.write(castBoolean(startBit), 1);
+//        current = startBit;
+//        for(int length : lengths){
+//            for(int i = 0; i < length; i++){
+//                BinaryStdOut.write(length, numberOfBits);
+//            }
+//            current = !startBit;
+//        }
+//        BinaryStdOut.close();
         BinaryStdOut.close();
     }
 
@@ -73,19 +104,27 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void expand() {
-
-        int size = BinaryStdIn.readInt();
-        int sequenceLength = BinaryStdIn.readInt();
-        boolean current = BinaryStdIn.readBoolean();
-
-        for(int i = 0; i < size/sequenceLength; i++){
-            int nextLength = BinaryStdIn.readInt(sequenceLength);
-            for(int j = 0; j < nextLength; j++){
-                BinaryStdOut.write(castBoolean(current), 1);
+        boolean type = false;
+        while(!BinaryStdIn.isEmpty()){
+            int runLength = BinaryStdIn.readInt(8);
+            for(int i = 0; i < runLength; i++){
+                BinaryStdOut.write(castBoolean(type), 1);
             }
-            current = !current;
+            type = !type;
         }
-
+//        int size = BinaryStdIn.readInt();
+//        int sequenceLength = BinaryStdIn.readInt();
+//        boolean current = BinaryStdIn.readBoolean();
+//
+//        for(int i = 0; i < size/sequenceLength; i++){
+//            int nextLength = BinaryStdIn.readInt(sequenceLength);
+//            for(int j = 0; j < nextLength; j++){
+//                BinaryStdOut.write(castBoolean(current), 1);
+//            }
+//            current = !current;
+//        }
+//
+//        BinaryStdOut.close();
         BinaryStdOut.close();
     }
 
