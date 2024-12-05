@@ -34,68 +34,42 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void compress() {
-
+        // ArrayList to store bitmap in a convenient way
         ArrayList<Integer> lengths = new ArrayList<Integer>();
         boolean startBit = BinaryStdIn.readBoolean();
         boolean current = startBit;
-        int count = 1;
+        int count = 0;
+        // Fill ArrayList with integers corresponding to the length of each repeat
         while(!BinaryStdIn.isEmpty()){
+            // Advance to the next bit
             boolean nextBit = BinaryStdIn.readBoolean();
+            // Add one to count if next bit is a repeat
             if(nextBit == current){
                 count++;
                 current = nextBit;
             }
+            // Otherwise add the current count to the ArrayList, and reset the count.
             else{
                 lengths.add(count + 1);
                 count = 0;
                 current = nextBit;
             }
         }
+        // Add the final repeat to the ArrayList
         lengths.add(count);
 
-        if(startBit == true){
-            BinaryStdOut.write(0,8);
-        }
+        // For each repeat write to the binary file
         for(int length : lengths){
+            // If a repeat requires more than 8 bits
             while(length > 255){
+                // Write 255
                 BinaryStdOut.write(255, 8);
                 length -= 255;
+                // Write a zero to switch the expander back 1 or 0
                 BinaryStdOut.write(0,8);
             }
             BinaryStdOut.write(length, 8);
         }
-
-//        ArrayList<Integer> lengths = new ArrayList<Integer>();
-//        boolean startBit = BinaryStdIn.readBoolean();
-//        boolean current = startBit;
-//        int count = 1;
-//        int size = 0;
-//        while(!BinaryStdIn.isEmpty()){
-//            boolean nextBit = BinaryStdIn.readBoolean();
-//            if(nextBit == current){
-//                count++;
-//                current = nextBit;
-//            }
-//            else{
-//                lengths.add(count);
-//                count = 0;
-//                current = nextBit;
-//            }
-//            size++;
-//        }
-//        int max = findMax(lengths);
-//        int numberOfBits = log2(max) + 1;
-//        BinaryStdOut.write(size);
-//        BinaryStdOut.write(numberOfBits);
-//        BinaryStdOut.write(castBoolean(startBit), 1);
-//        current = startBit;
-//        for(int length : lengths){
-//            for(int i = 0; i < length; i++){
-//                BinaryStdOut.write(length, numberOfBits);
-//            }
-//            current = !startBit;
-//        }
-//        BinaryStdOut.close();
         BinaryStdOut.close();
     }
 
@@ -104,32 +78,30 @@ public class BitmapCompressor {
      * and writes the results to standard output.
      */
     public static void expand() {
+        // Boolean for a pixel
         boolean type = false;
+        // Loop until the end of string
         while(!BinaryStdIn.isEmpty()){
+            // Read length of a repeat from file in
             int runLength = BinaryStdIn.readInt(8);
+            // Write the appropriate amount of bits
             for(int i = 0; i < runLength; i++){
                 BinaryStdOut.write(castBoolean(type), 1);
             }
+            // Switch the bit from 0 to 1 or 1 to 0
             type = !type;
         }
-//        int size = BinaryStdIn.readInt();
-//        int sequenceLength = BinaryStdIn.readInt();
-//        boolean current = BinaryStdIn.readBoolean();
-//
-//        for(int i = 0; i < size/sequenceLength; i++){
-//            int nextLength = BinaryStdIn.readInt(sequenceLength);
-//            for(int j = 0; j < nextLength; j++){
-//                BinaryStdOut.write(castBoolean(current), 1);
-//            }
-//            current = !current;
-//        }
-//
-//        BinaryStdOut.close();
         BinaryStdOut.close();
     }
 
+    // Method for casting a boolean to a 1 or a 0 in integer form
     public static int castBoolean(boolean bool) {
-        return (bool) ? 1 : 0;
+        if(bool){
+            return 1;
+        }
+        else{
+            return 0;
+        }
     }
 
     public static int log2(int N)
